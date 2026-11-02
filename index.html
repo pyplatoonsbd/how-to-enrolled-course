@@ -144,6 +144,15 @@ section{margin-top:72px}
 @keyframes pill-pulse{0%,100%{box-shadow:0 3px 10px rgba(239,68,68,0.5)}50%{box-shadow:0 3px 20px rgba(239,68,68,0.9)}}
 .seats-pill .dot{width:6px;height:6px;border-radius:50%;background:#fff;animation:pulse 1.2s ease infinite;}
 
+/* ── COPY NUMBER ── */
+.copy-row{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:2px;}
+.phone-num{font-family:'Outfit',sans-serif;font-size:1.02rem;font-weight:900;color:var(--text-h);letter-spacing:0.04em;background:rgba(91,79,255,0.08);border:1px dashed rgba(91,79,255,0.35);padding:4px 12px;border-radius:9px;}
+.copy-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 12px;border-radius:9px;font-size:0.72rem;font-weight:800;letter-spacing:0.03em;color:#fff;background:linear-gradient(135deg,#5b4fff,#7c3aed);border:none;cursor:pointer;box-shadow:0 3px 12px rgba(91,79,255,0.35);transition:transform .15s,box-shadow .15s,opacity .15s;font-family:'Plus Jakarta Sans',sans-serif;}
+.copy-btn:hover{transform:scale(1.05);box-shadow:0 4px 18px rgba(91,79,255,0.5);}
+.copy-btn:active{transform:scale(0.97);}
+.copy-btn.copied{background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 3px 12px rgba(16,185,129,0.45);}
+.copy-btn svg{width:14px;height:14px;flex-shrink:0;stroke:currentColor;stroke-width:2.5;fill:none;}
+
 @media(max-width:640px){
   .urgency{flex-direction:column;align-items:stretch;}
   .urg-timer{justify-content:center;}
@@ -248,7 +257,14 @@ section{margin-top:72px}
         <div class="snum" style="background:linear-gradient(135deg,#ef4444,#b91c1c);box-shadow:0 3px 12px rgba(239,68,68,0.4)">04</div>
         <div class="sbody">
           <h4>✅ Step 4: কোর্স ফি পেমেন্ট করুন</h4>
-          <p>💳 বিকাশ / নগদ / রকেট সেন্ড মানি করুন এই নাম্বারে:<br>📱 <strong style="color:var(--text-h);font-weight:700;letter-spacing:0.03em">01533754261</strong></p>
+          <p>💳 বিকাশ / নগদ / রকেট সেন্ড মানি করুন এই নাম্বারে:</p>
+          <div class="copy-row">
+            <span class="phone-num" id="pay-number">01533754261</span>
+            <button class="copy-btn" id="copy-btn" type="button" aria-label="Copy payment number">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+              <span id="copy-text">Copy</span>
+            </button>
+          </div>
         </div>
       </div>
       <div class="step anim">
@@ -325,6 +341,44 @@ document.querySelectorAll('.ccard,.step').forEach((el,i)=>{
   const pct=Math.round((taken/total)*100);
   document.getElementById('seats-left').textContent=left;
   document.getElementById('seats-fill').style.width=pct+'%';
+})();
+
+/* ── COPY PAYMENT NUMBER ── */
+(function(){
+  const btn=document.getElementById('copy-btn');
+  const txt=document.getElementById('copy-text');
+  const numEl=document.getElementById('pay-number');
+  const number=numEl.textContent.trim();
+  const copyIcon='<svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
+  const checkIcon='<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
+
+  async function copyNumber(){
+    try{
+      if(navigator.clipboard && window.isSecureContext){
+        await navigator.clipboard.writeText(number);
+      }else{
+        const ta=document.createElement('textarea');
+        ta.value=number;
+        ta.style.position='fixed';
+        ta.style.opacity='0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      btn.classList.add('copied');
+      btn.innerHTML=checkIcon+'<span id="copy-text">Copied!</span>';
+      clearTimeout(btn._t);
+      btn._t=setTimeout(()=>{
+        btn.classList.remove('copied');
+        btn.innerHTML=copyIcon+'<span id="copy-text">Copy</span>';
+      },2000);
+    }catch(e){
+      txt.textContent='Failed';
+      setTimeout(()=>{txt.textContent='Copy';},1500);
+    }
+  }
+  btn.addEventListener('click',copyNumber);
 })();
 </script>
 </body>
